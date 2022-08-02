@@ -1,0 +1,14 @@
+Data to keep:
+
+Title, Object Name, Medium,
+ Is Highlight, Artist Nationality, Start Date (When Painting Was Started), End Date (When Painting was Finished)
+
+Filter by highlighted items only
+
+Color by artist nationality
+
+"American" vs "American, born.. "
+Collect "Borns" and display them
+
+
+
