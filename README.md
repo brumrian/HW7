@@ -10,3 +10,7 @@
 
 Scatterplot: https://d3-graph-gallery.com/graph/scatter_basic.html
 Histogram: https://d3-graph-gallery.com/graph/histogram_basic.html
+
+
+Buttons/Checkmarks: https://d3-graph-gallery.com/graph/interactivity_button.html
+
