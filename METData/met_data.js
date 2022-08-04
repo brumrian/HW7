@@ -16,7 +16,7 @@ class MetData {
   Nationalities = ["Netherlandish", "Dutch",  "Flemish", "Spanish", "Scottish", "Mexican", "Austrian", "Swiss", "Brazilian", "Greek", "Chinese", "Japanese", "French", "German", "Italian", "British", "American"];
   NationalityCount = new Map();
   //   ColorCode = ["#800000", "#9a6324", "#808000", "#469990", "#000075", "#e6194b", "#f58231", "#ffe119", "#bfef45", "#3cb44b", "#42d4f4", "#4363d8", "#911eb4", "#f032e6", "#fabed4", "#ffd8b1", "#aaffc3", "#dcbeff", ""]
-  ColorCode = [ "#FFFF00", "#7CFC00", "#006400",  "#9ACD32", "#8B008B", "#FF0000", "#FFA500", "#808000", "#008080", "#4682B4", "#1e90ff", "#db7093", "#DEB887", "#8A2BE2", "#ff1493", "#00ffff", "#ff7f50", "#ff00ff"]
+  ColorCode = [ "#FFFF00", "#7CFC00", "#006400",  "#9ACD32", "#8B008B", "#FF0000", "#FFA500", "#808000", "#008080", "#4f77aa", "#78aed3", "#ffb6c1", "#DEB887", "#8A2BE2", "#ff1493", "#00ffff", "#ff7f50", "#ff00ff"]
   const ColorMap = new Map();
   for(i = 0; i < Nationalities.length; i++ ){
     ColorMap.set(Nationalities[i], ColorCode[i]);
@@ -137,6 +137,7 @@ window.onload = async function(){
         // console.log(accessionYearSet);
         console.log("highlighted ass: ", highlightedAccessionYearSet);
         makeButtons();
+        makeHighlightButtons();
 
         // createScatterplot(highlighted_met_data , Math.max(...highlightedEndDateSet), Math.min(...highlightedEndDateSet), Math.max(...highlightedAccessionYearSet), Math.min(...highlightedAccessionYearSet));
         createScatterplot(met_data, Math.max(...endDateSet), Math.min(...endDateSet), Math.max(...accessionYearSet), Math.min(...accessionYearSet));
@@ -178,10 +179,60 @@ function makeButtons(){
         d3.select('#Buttons')
           .insert("p")
           .attr('class', Nationalities[i])
-          .classed("singleButton", true)
+          .attr('id', "singleButton")
           .text(Nationalities[i]).on('click', handleClick).style('background-color', ColorMap.get(Nationalities[i]));
     }
     console.log("end make buttons");
+    
+}
+
+function makeHighlightButtons(){
+
+    console.log("Making highlight buttons...");
+
+    var div = d3.select("#toggles")
+
+    div.insert("p")
+        .attr('id', "singleToggle")
+        .attr('class', "highlighted")
+        .text("Highlighted pieces")
+        // .on('click', handleHighlightClick)
+        .style('background-color', "#d3d3d3")
+
+    div.insert("p")
+        .attr('id', "singleToggle")
+        .attr('class', "all")
+        .text("All pieces")
+        // .on('click', handleHighlightClick)
+        .style('background-color', "#d3d3d3")
+
+    // var svg = d3.select("#toggles").append("svg").attr("width", 800).attr("height", 200)
+
+    // svg.append('rect')
+    //     attr('x', 10)
+    //     .attr('y', 120)
+    //     .attr('width', 600)
+    //     .attr('height', 40)
+    //     .attr('stroke', 'black')
+    //     .attr('fill', '#69a3b2');
+
+
+    // var svg = d3.select("#toggles")
+    //             .append("hello")
+    //             .text("Hello??")
+    //             .attr("type", "button")
+                // .attr("type", "button")
+
+
+    // for(i = 0; i < 2; i++){
+    //     d3.select('#toggles')
+    //       .insert("p")
+    //       .attr('id', "toggle")
+    //       .text(toString(i))
+    //     //   .on('click', handleClick)
+    //       .style('background-color', "#d3d3d3");
+    // }
+    // console.log("end make buttons");
     
 }
 
