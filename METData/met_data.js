@@ -15,12 +15,14 @@ class MetData {
 
   Nationalities = ["Netherlandish", "Dutch",  "Flemish", "Spanish", "Scottish", "Mexican", "Austrian", "Swiss", "Brazilian", "Greek", "Chinese", "Japanese", "French", "German", "Italian", "British", "American"];
   NationalityCount = new Map();
+  highlightedNationalityCount = new Map();
   //   ColorCode = ["#800000", "#9a6324", "#808000", "#469990", "#000075", "#e6194b", "#f58231", "#ffe119", "#bfef45", "#3cb44b", "#42d4f4", "#4363d8", "#911eb4", "#f032e6", "#fabed4", "#ffd8b1", "#aaffc3", "#dcbeff", ""]
-  ColorCode = [ "#FFFF00", "#7CFC00", "#006400",  "#9ACD32", "#8B008B", "#FF0000", "#FFA500", "#808000", "#008080", "#4f77aa", "#78aed3", "#ffb6c1", "#DEB887", "#8A2BE2", "#ff1493", "#00ffff", "#ff7f50", "#ff00ff"]
+  ColorCode = ["#ff00ff", "#7CFC00", "#006400",  "#9ACD32", "#8B008B", "#FF0000", "#FFA500", "#808000", "#008080", "#4f77aa", "#78aed3", "#ffb6c1", "#DEB887", "#8A2BE2", "#ff1493", "#00ffff", "#ff7f50"]
   const ColorMap = new Map();
   for(i = 0; i < Nationalities.length; i++ ){
     ColorMap.set(Nationalities[i], ColorCode[i]);
     NationalityCount.set(Nationalities[i], 0);
+    highlightedNationalityCount.set(Nationalities[i], 0);
     // console.log(Nationalities[i]);
   }
 
@@ -117,6 +119,8 @@ window.onload = async function(){
                     highlightedEndDateSet.add(object_data.objectEndDate);
                     highlightedMediumSet.add(object_data.medium);
                     highlightedAccessionYearSet.add(object_data.accessionYear);
+                    highlightedNationalityCount.set(getNationality(object_data.artistNationality), highlightedNationalityCount.get(getNationality(object_data.artistNationality)) + 1);
+
                 }
 
 
@@ -136,26 +140,26 @@ window.onload = async function(){
         // console.log(highlightedMediumSet);
         // console.log(accessionYearSet);
         console.log("highlighted ass: ", highlightedAccessionYearSet);
-        makeButtons();
         makeHighlightButtons();
 
-        // createScatterplot(highlighted_met_data , Math.max(...highlightedEndDateSet), Math.min(...highlightedEndDateSet), Math.max(...highlightedAccessionYearSet), Math.min(...highlightedAccessionYearSet));
-        createScatterplot(met_data, Math.max(...endDateSet), Math.min(...endDateSet), Math.max(...accessionYearSet), Math.min(...accessionYearSet));
+        // // createScatterplot(highlighted_met_data , Math.max(...highlightedEndDateSet), Math.min(...highlightedEndDateSet), Math.max(...highlightedAccessionYearSet), Math.min(...highlightedAccessionYearSet));
+        // createScatterplot(met_data, Math.max(...endDateSet), Math.min(...endDateSet), Math.max(...accessionYearSet), Math.min(...accessionYearSet));
+        showAllData();
+
         
-        
-        const arr = Array.from(NationalityCount, function (item) {
-            return { key: item[0], value: item[1] }
-        });
+        // const arr = Array.from(NationalityCount, function (item) {
+        //     return { key: item[0], value: item[1] }
+        // });
 
         // max = 0;
-        // for(pair in arr){
-        //     console.log(pair.key)
-        //     if(pair.value > max){
-        //         max = pair.value;
+        // for(i = 0; i < arr.length; i++){
+        //     // console.log(arr[i])
+        //     if(arr[i].value > max){
+        //         max = arr[i].value;
         //     }
         // }
-        // console.log(arr);
-        createBarChart(arr, 2000);
+        // console.log("max is : ", max);
+        // createBarChart(arr, max);
 
         // createHistogram(NationalityCount.values());
         // createHistogram(NationalityCount);
@@ -182,7 +186,6 @@ function makeButtons(){
           .attr('id', "singleButton")
           .text(Nationalities[i]).on('click', handleClick).style('background-color', ColorMap.get(Nationalities[i]));
     }
-    console.log("end make buttons");
     
 }
 
@@ -194,47 +197,86 @@ function makeHighlightButtons(){
 
     div.insert("p")
         .attr('id', "singleToggle")
-        .attr('class', "highlighted")
-        .text("Highlighted pieces")
-        // .on('click', handleHighlightClick)
-        .style('background-color', "#d3d3d3")
+        .attr('class', "AllButton")
+        .text("Show all paintings")
+        .on('click', showAllData)
+        .style('background-color', "#FFFF00" )
 
     div.insert("p")
         .attr('id', "singleToggle")
-        .attr('class', "all")
-        .text("All pieces")
-        // .on('click', handleHighlightClick)
+        .attr('class', "HighlightedButton")
+        .text("Show highlighted paintings only")
+        .on('click', showHighlightData)
         .style('background-color', "#d3d3d3")
 
-    // var svg = d3.select("#toggles").append("svg").attr("width", 800).attr("height", 200)
+}
 
-    // svg.append('rect')
-    //     attr('x', 10)
-    //     .attr('y', 120)
-    //     .attr('width', 600)
-    //     .attr('height', 40)
-    //     .attr('stroke', 'black')
-    //     .attr('fill', '#69a3b2');
+function showAllData(){
 
-
-    // var svg = d3.select("#toggles")
-    //             .append("hello")
-    //             .text("Hello??")
-    //             .attr("type", "button")
-                // .attr("type", "button")
+    d3.select("#scatterplot").html("");
+    d3.select("#histogram").html("");
+    d3.select("#Buttons").html("")
+    d3.select('.HighlightedButton').style('background-color', '#d3d3d3');
+    d3.select('.AllButton').style('background-color', "#FFFF00");
 
 
-    // for(i = 0; i < 2; i++){
-    //     d3.select('#toggles')
-    //       .insert("p")
-    //       .attr('id', "toggle")
-    //       .text(toString(i))
-    //     //   .on('click', handleClick)
-    //       .style('background-color', "#d3d3d3");
-    // }
-    // console.log("end make buttons");
+    makeButtons();
+    // makeButtons();
+
+
+
+        // createScatterplot(highlighted_met_data , Math.max(...highlightedEndDateSet), Math.min(...highlightedEndDateSet), Math.max(...highlightedAccessionYearSet), Math.min(...highlightedAccessionYearSet));
+        createScatterplot(met_data, Math.max(...endDateSet), Math.min(...endDateSet), Math.max(...accessionYearSet), Math.min(...accessionYearSet));
+        
+        
+        const arr = Array.from(NationalityCount, function (item) {
+            return { key: item[0], value: item[1] }
+        });
+
+        max = 0;
+        for(i = 0; i < arr.length; i++){
+            // console.log(arr[i])
+            if(arr[i].value > max){
+                max = arr[i].value;
+            }
+        }
+        // console.log("max is : ", max);
+        createBarChart(arr, max);
+
+}
+
+function showHighlightData(){
+
+    d3.select("#scatterplot").html("");
+    d3.select("#histogram").html("");
+    d3.select("#Buttons").html("")
+    d3.select('.HighlightedButton').style('background-color', "#FFFF00");
+    d3.select('.AllButton').style('background-color', '#d3d3d3')
+    // makeButtons();
+
+    makeButtons();
+
+
+       createScatterplot(highlighted_met_data , Math.max(...highlightedEndDateSet), Math.min(...highlightedEndDateSet), Math.max(...highlightedAccessionYearSet), Math.min(...highlightedAccessionYearSet));
+        
+        
+       const arr = Array.from(highlightedNationalityCount, function (item) {
+           return { key: item[0], value: item[1] }
+       });
+
+       max = 0;
+       for(i = 0; i < arr.length; i++){
+           // console.log(arr[i])
+           if(arr[i].value > max){
+               max = arr[i].value;
+           }
+       }
+       console.log("max is : ", max);
+       createBarChart(arr, max);
+
     
 }
+
 
 function updateButtons(nat){
 
@@ -301,14 +343,15 @@ var svg = d3.select("#scatterplot")
       .range([ 0, width ]);
     svg.append("g")
       .attr("transform", "translate(0," + height + ")")
-      .call(d3.axisBottom(x));
+      .call(d3.axisBottom(x).tickFormat(d3.format("d")));
+    // d3.svg.axis().scale(x).orient("bottom").tickFormat(d3.format("d"))
   
     // Add Y axis
     var y = d3.scaleLinear()
       .domain([yMin, yMax])
       .range([ height, 0]);
     svg.append("g")
-    .call(d3.axisLeft(y));
+    .call(d3.axisLeft(y).tickFormat(d3.format("d")));
   
     // Add dots
     svg.append('g')
