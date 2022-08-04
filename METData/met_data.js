@@ -178,6 +178,7 @@ function makeButtons(){
         d3.select('#Buttons')
           .insert("p")
           .attr('class', Nationalities[i])
+          .classed("singleButton", true)
           .text(Nationalities[i]).on('click', handleClick).style('background-color', ColorMap.get(Nationalities[i]));
     }
     console.log("end make buttons");
@@ -225,8 +226,11 @@ function createScatterplot(data, xMax, xMin, yMax, yMin){
 
 // set the dimensions and margins of the graph
 var margin = {top: 10, right: 30, bottom: 30, left: 60},
-width = 460 - margin.left - margin.right,
-height = 400 - margin.top - margin.bottom;
+// width = 460 - margin.left - margin.right,
+// height = 400 - margin.top - margin.bottom;
+width = 600 - margin.left - margin.right,
+height = 560 - margin.top - margin.bottom;
+
 
 // append the svg object to the body of the page
 var svg = d3.select("#scatterplot")
@@ -332,8 +336,11 @@ function createBarChart(data, maxcount){
 
 // set the dimensions and margins of the graph
 var margin = {top: 30, right: 30, bottom: 70, left: 60},
-width = 460 - margin.left - margin.right,
-height = 400 - margin.top - margin.bottom;
+// width = 460 - margin.left - margin.right,
+// height = 400 - margin.top - margin.bottom;
+
+width = 600 - margin.left - margin.right,
+height = 600 - margin.top - margin.bottom;
 
 // append the svg object to the body of the page
 var svg = d3.select("#histogram")
