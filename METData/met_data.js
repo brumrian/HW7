@@ -148,7 +148,31 @@ window.onload = async function(){
     });
 }
 
+// Creates the buttons where the user can select either highlighted pieces or all pieces and the data will display accordingly 
+function makeHighlightButtons(){
 
+    // Want to add 2 buttons side by side to the toggles div
+    var div = d3.select("#toggles")
+
+    // All paintings button
+    div.insert("p")
+        .attr('id', "singleToggle")
+        .attr('class', "AllButton")
+        .text("Show all paintings")
+        .on('click', showAllData)
+        .style('background-color', "#FFFF00" )
+
+    // Highlighted paintings button
+    div.insert("p")
+        .attr('id', "singleToggle")
+        .attr('class', "HighlightedButton")
+        .text("Show highlighted paintings only")
+        .on('click', showHighlightData)
+        .style('background-color', "#d3d3d3")
+
+}
+
+// Buttons on the left that allow the user to filter the displayed data based on artist nationality
 function makeButtons(){
 
     // Nationality buttons
@@ -157,7 +181,7 @@ function makeButtons(){
           .insert("p")
           .attr('class', Nationalities[i])
           .attr('id', "singleButton")
-          .text(Nationalities[i]).on('click', handleClick).style('background-color', ColorMap.get(Nationalities[i]));
+          .text(Nationalities[i]).on('click', handleNationalityClick).style('background-color', ColorMap.get(Nationalities[i]));
     }
 
     // Add a reset button
@@ -171,144 +195,20 @@ function makeButtons(){
     
 }
 
-function makeHighlightButtons(){
-
-    console.log("Making highlight buttons...");
-
-    var div = d3.select("#toggles")
-
-    div.insert("p")
-        .attr('id', "singleToggle")
-        .attr('class', "AllButton")
-        .text("Show all paintings")
-        .on('click', showAllData)
-        .style('background-color', "#FFFF00" )
-
-    div.insert("p")
-        .attr('id', "singleToggle")
-        .attr('class', "HighlightedButton")
-        .text("Show highlighted paintings only")
-        .on('click', showHighlightData)
-        .style('background-color', "#d3d3d3")
-
-}
-
-var highlightedButtonSelected = false;
-
-function showAllData(){
-
-    highlightedButtonSelected = false;
-
-    d3.select("#scatterplot").html("");
-    d3.select("#histogram").html("");
-    d3.select("#Buttons").html("")
-    d3.select('.HighlightedButton').style('background-color', '#d3d3d3');
-    d3.select('.AllButton').style('background-color', "#FFFF00");
-
-
-    makeButtons();
-
-        createScatterplot(met_data, Math.max(...endDateSet), Math.min(...endDateSet), Math.max(...accessionYearSet), Math.min(...accessionYearSet));
-        
-        
-        const arr = Array.from(NationalityCount, function (item) {
-            return { key: item[0], value: item[1] }
-        });
-
-        max = 0;
-        for(i = 0; i < arr.length; i++){
-
-            if(arr[i].value > max){
-                max = arr[i].value;
-            }
-        }
-        createBarChart(arr, max);
-
-}
-
-function showHighlightData(){
-
-    highlightedButtonSelected = true;
-
-    d3.select("#scatterplot").html("");
-    d3.select("#histogram").html("");
-    d3.select("#Buttons").html("")
-    d3.select('.HighlightedButton').style('background-color', "#FFFF00");
-    d3.select('.AllButton').style('background-color', '#d3d3d3')
-
-    makeButtons();
-
-
-       createScatterplot(highlighted_met_data , Math.max(...highlightedEndDateSet), Math.min(...highlightedEndDateSet), Math.max(...highlightedAccessionYearSet), Math.min(...highlightedAccessionYearSet));
-        
-        
-       const arr = Array.from(highlightedNationalityCount, function (item) {
-           return { key: item[0], value: item[1] }
-       });
-
-       max = 0;
-       for(i = 0; i < arr.length; i++){
-           // console.log(arr[i])
-           if(arr[i].value > max){
-               max = arr[i].value;
-           }
-       }
-       console.log("max is : ", max);
-       createBarChart(arr, max);
-}
-
-
-function updateButtons(nat){
-
-    nationality = ColorMap.get(nat);
-
-    var svg = d3.select('#Buttons')
-
-    for(i = 0; i < Nationalities.length; i++){
-        if(Nationalities[i] == nat){
-            color = ColorMap.get(nat);
-            var dots = svg.selectAll("." + nat).style('background-color', color)
-
-        }
-        else{
-            var dots = svg.selectAll("." + Nationalities[i]).style('background-color', '#d3d3d3')
-
-        }
-    }
-}
-
-function handleClick(e, d){
-    
-    console.log("Click-click");
-
-    updateScatterplot(this.outerText);
-    updateBarchart(this.outerText);
-    updateButtons(this.outerText)
-}
-
-function handleReset(e, d){
-
-    if (highlightedButtonSelected){
-        showHighlightData();
-    }
-    else {
-        showAllData();
-    }
-}
-
+// This function creates the initial scatterplot. The data parameter is adjusted to be either the entire dataset or just the set with the highlighted paintings
 function createScatterplot(data, xMax, xMin, yMax, yMin){
 
-// set the dimensions and margins of the graph
-var margin = {top: 30, right: 30, bottom: 30, left: 60},
-width = 600 - margin.left - margin.right,
-height = 560 - margin.top - margin.bottom;
+    // set the dimensions and margins of the graph
+    var margin = {top: 30, right: 30, bottom: 30, left: 60},
+    width = 600 - margin.left - margin.right,
+    height = 560 - margin.top - margin.bottom;
 
-
-var svg = d3.select("#scatterplot")
-            .attr("width", width + margin.left + margin.right)
-            .attr("height", height + margin.top + margin.bottom)
-            .append("g")
-            .attr("transform","translate(" + margin.left + "," + margin.top + ")");
+    // Set the dimensions of the graph
+    var svg = d3.select("#scatterplot")
+                .attr("width", width + margin.left + margin.right)
+                .attr("height", height + margin.top + margin.bottom)
+                .append("g")
+                .attr("transform","translate(" + margin.left + "," + margin.top + ")");
 
 
     // Add X axis
@@ -319,7 +219,7 @@ var svg = d3.select("#scatterplot")
       .attr("transform", "translate(0," + height + ")")
       .call(d3.axisBottom(x).tickFormat(d3.format("d")));
 
-    // Add the x-axis label
+    // Add X axis label
     svg.append("text")      // text label for the x axis
         .attr("x", width / 2 )
         .attr("y",  height + margin.bottom + 10 )
@@ -333,7 +233,7 @@ var svg = d3.select("#scatterplot")
     svg.append("g")
     .call(d3.axisLeft(y).tickFormat(d3.format("d")));
 
-    // Add y-axis label
+    // Add Y axis label
     svg.append("text")
         .attr("transform", "rotate(-90)")
         .attr("y", 0 - margin.left)
@@ -342,6 +242,7 @@ var svg = d3.select("#scatterplot")
         .style("text-anchor", "middle")
         .text("Year of Piece Acquisition");
 
+    // Add title for the entire graph
     svg.append("text")
     .attr("x", (width / 2))             
     .attr("y", 0 - (margin.top / 2))
@@ -349,7 +250,7 @@ var svg = d3.select("#scatterplot")
     .style("font-size", "18px") 
     .text("Creation and Acquisition of Pieces");
 
-    // Create a div to hold the title names 
+    // Create a div to hold the title names - this will be filled as the user hovers over the scatterplot points
     var titleDiv = d3.select("body").append("div")
      .attr("class", "titleHolder")
      .style("opacity", 0);
@@ -368,109 +269,71 @@ var svg = d3.select("#scatterplot")
         .style("fill", function(d){
             nationality = getNationality(d.artistNationality)
             return ColorMap.get(nationality)})
+        // When the user hovers over a scatterplot dot, we want to make the point bigger and add the corresonding painting's title to the titleDiv and display it 
         .on("mouseover", function (d, i){
+            // Makes the points bigger when the user hovers over them
             d3.select(this).transition()
                             .duration('100')
                             .attr('r', 5);
             titleDiv.transition()
                 .duration('100')
+                // opacity = 1 makes it appear 
                 .style("opacity", 1);
-            console.log("piece title: ", d.title)
             titleDiv.html(d.title)
                 .style("left", (d3.event.pageX + 10) + "px")
                 .style("top", (d3.event.pageY - 15) + "px");
         })
+        // When the user stops hovering over the dot, we want the dot to return to its original size and the div with the title to disappear 
         .on("mouseout", function (d, i){
             d3.select(this).transition()
                             .duration('200')
                             .attr('r', 2);
             titleDiv.transition()
                     .duration('200')
+                    // opacity = 0 makes it disappear 
                     .style("opacity", 0);
-
         });
   }
 
-function updateScatterplot(nat){
-
-
-    nationality = ColorMap.get(nat);
-
-    var svg = d3.select('#scatterplot')
-
-    for(i = 0; i < Nationalities.length; i++){
-        if(Nationalities[i] == nat){
-            color = ColorMap.get(nat);
-            var dots = svg.selectAll("." + nat).style('fill', color)
-
-        }
-        else{
-            var dots = svg.selectAll("." + Nationalities[i]).style('fill', '#d3d3d3')
-
-        }
-    }
- 
-}
-
-function updateBarchart(nat){
-
-        nationality = ColorMap.get(nat);
-    
-        var svg = d3.select('#histogram')
-    
-        for(i = 0; i < Nationalities.length; i++){
-            if(Nationalities[i] == nat){
-                color = ColorMap.get(nat);
-                var dots = svg.selectAll("." + nat).style('fill', color)
-    
-            }
-            else{
-                var dots = svg.selectAll("." + Nationalities[i]).style('fill', '#d3d3d3')
-    
-            }
-        }
-}
-
-
-console.log("This code runs before the data is read in.");
-
+  // This function creates the initial histogram
 function createBarChart(data, maxcount){
 
-// set the dimensions and margins of the graph
-var margin = {top: 30, right: 30, bottom: 70, left: 60},
-width = 600 - margin.left - margin.right,
-height = 600 - margin.top - margin.bottom;
+    // set the dimensions and margins of the graph
+    var margin = {top: 30, right: 30, bottom: 70, left: 60},
+    width = 600 - margin.left - margin.right,
+    height = 600 - margin.top - margin.bottom;
 
-// append the svg object to the body of the page
-var svg = d3.select("#histogram")
-.attr("width", width + margin.left + margin.right)
-.attr("height", height + margin.top + margin.bottom)
-.append("g")
-.attr("transform",
-      "translate(" + margin.left + "," + margin.top + ")");
+    // append the svg object to the body of the page
+    var svg = d3.select("#histogram")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+    .append("g")
+    .attr("transform",
+        "translate(" + margin.left + "," + margin.top + ")");
 
 
-// Parse the Data
+    // Parse the Data
     var x = d3.scaleBand()
     .range([ 0, width ])
     .domain(data.map(function(d) { return d.key; }))
     .paddingInner(0.2);
-  svg.append("g")
-    .attr("transform", "translate(0," + height + ")")
-    .call(d3.axisBottom(x))
-    .selectAll("text")
-      .attr("transform", "translate(-10,0)rotate(-45)")
-      .style("text-anchor", "end");
+
+    svg.append("g")
+        .attr("transform", "translate(0," + height + ")")
+        .call(d3.axisBottom(x))
+        .selectAll("text")
+        .attr("transform", "translate(-10,0)rotate(-45)")
+        .style("text-anchor", "end");
 
   
-  // Add Y axis
-  var y = d3.scaleLinear()
-    .domain([0, maxcount])
-    .range([ height, 0]);
-  svg.append("g")
-    .call(d3.axisLeft(y));
+    // Add Y axis
+    var y = d3.scaleLinear()
+        .domain([0, maxcount])
+        .range([ height, 0]);
+    svg.append("g")
+        .call(d3.axisLeft(y));
 
-// Add the x-axis label
+    // Add the x-axis label
     svg.append("text")      
         .attr("x", width / 2 )
         .attr("y",  height + margin.bottom )
@@ -479,23 +342,23 @@ var svg = d3.select("#histogram")
 
    // Add y-axis label
    svg.append("text")
-   .attr("transform", "rotate(-90)")
-   .attr("y", 0 - margin.left)
-   .attr("x",0 - (height / 2))
-   .attr("dy", "1em")
-   .style("text-anchor", "middle")
-   .text("Number of Pieces");
+        .attr("transform", "rotate(-90)")
+        .attr("y", 0 - margin.left)
+        .attr("x",0 - (height / 2))
+        .attr("dy", "1em")
+        .style("text-anchor", "middle")
+        .text("Number of Pieces");
 
+   // Add title for entire graph
     svg.append("text")
-    .attr("x", (width / 2))             
-    .attr("y", 0 - (margin.top / 2))
-    .attr("text-anchor", "middle")  
-    .style("font-size", "18px") 
-    // .style("text-decoration", "underline")  
-    .text("Number of Pieces by Artist Nationality");
+        .attr("x", (width / 2))             
+        .attr("y", 0 - (margin.top / 2))
+        .attr("text-anchor", "middle")  
+        .style("font-size", "18px") 
+        .text("Number of Pieces by Artist Nationality");
   
 
-    // Bars
+    // Create the bars
     svg.selectAll("mybar")
         .data(data)
         .enter()
@@ -506,4 +369,160 @@ var svg = d3.select("#histogram")
             .attr("width", x.bandwidth())
             .attr("height", function(d) { return height - y(d.value); })
             .attr("fill", function(d){return ColorMap.get(d.key)})
+}
+
+var highlightedButtonSelected = false;
+
+// This function is called when the page is first loaded and anytime the "Show all paintings" button is clicked
+function showAllData(){
+
+    // When this function is called, we know the highlighted pieces button is not selected - set to false
+    highlightedButtonSelected = false;
+
+    d3.select("#scatterplot").html("");
+    d3.select("#histogram").html("");
+    d3.select("#Buttons").html("")
+    d3.select('.HighlightedButton').style('background-color', '#d3d3d3');
+    d3.select('.AllButton').style('background-color', "#FFFF00");
+
+
+    makeButtons();
+
+    // Create a scatterplot with all of the data
+    createScatterplot(met_data, Math.max(...endDateSet), Math.min(...endDateSet), Math.max(...accessionYearSet), Math.min(...accessionYearSet));
+        
+        
+    const arr = Array.from(NationalityCount, function (item) {
+        return { key: item[0], value: item[1] }
+    });
+
+    max = 0;
+    for(i = 0; i < arr.length; i++){
+
+        if(arr[i].value > max){
+            max = arr[i].value;
+        }     
+   }
+    
+   createBarChart(arr, max);
+}
+
+// This function is called when the "Show highlighted paintings only" button is clicked
+function showHighlightData(){
+
+    highlightedButtonSelected = true;
+
+    d3.select("#scatterplot").html("");
+    d3.select("#histogram").html("");
+    d3.select("#Buttons").html("")
+    d3.select('.HighlightedButton').style('background-color', "#FFFF00");
+    d3.select('.AllButton').style('background-color', '#d3d3d3')
+
+    makeButtons();
+
+
+    // Create scatterplot with data filtered for the highlighted pieces
+    createScatterplot(highlighted_met_data , Math.max(...highlightedEndDateSet), Math.min(...highlightedEndDateSet), Math.max(...highlightedAccessionYearSet), Math.min(...highlightedAccessionYearSet));
+        
+        
+    const arr = Array.from(highlightedNationalityCount, function (item) {
+        return { key: item[0], value: item[1] }
+     });
+
+    max = 0;
+    for(i = 0; i < arr.length; i++){
+        if(arr[i].value > max){
+            max = arr[i].value;
+        }
+     }
+
+    createBarChart(arr, max);
+}
+
+// This function is called when the user clicks on a specific nationality - its purpose is to update the 2 visuals with the appropriate colors
+function handleNationalityClick(e, d){
+    
+    updateScatterplot(this.outerText);
+    updateBarchart(this.outerText);
+    updateButtons(this.outerText)
+}
+
+// This function is called when the user clicks the reset button
+function handleReset(e, d){
+
+    // If the highlighted button is currently selected, we want to reload only the highlighted data
+    if (highlightedButtonSelected){
+        showHighlightData();
+    }
+    // If the show all paintings button is currently selected, we want to reload all of the data
+    else {
+        showAllData();
+    }
+}
+
+// This function will change the button colors according to which nationality is selected by the user 
+function updateButtons(nat){
+
+    nationality = ColorMap.get(nat);
+
+    var svg = d3.select('#Buttons')
+
+    for(i = 0; i < Nationalities.length; i++){
+
+        // Want to keep the nationality's original color if it's the one selected 
+        if(Nationalities[i] == nat){
+            color = ColorMap.get(nat);
+            var dots = svg.selectAll("." + nat).style('background-color', color)
+
+        }
+        // If it's not the one selected we want to turn it to grey
+        else{
+            var dots = svg.selectAll("." + Nationalities[i]).style('background-color', '#d3d3d3')
+        }
+    }
+}
+
+  // This function updates the scatterplot so that the dots that correspond with the nationality the user has selected stay colorful and all others go grey
+function updateScatterplot(nat){
+
+
+    nationality = ColorMap.get(nat);
+
+    var svg = d3.select('#scatterplot')
+
+    for(i = 0; i < Nationalities.length; i++){
+        // Keep the nationality's original color on the plot if it is selected
+        if(Nationalities[i] == nat){
+            color = ColorMap.get(nat);
+            var dots = svg.selectAll("." + nat).style('fill', color)
+        }
+        // If the nationality is not selected, make the corresponding point grey
+        else{
+            var dots = svg.selectAll("." + Nationalities[i]).style('fill', '#d3d3d3')
+
+        }
+    }
+}
+
+  // This function updates the histogram so that the bar that corresponds with the nationality the user has selected stays colorful and all others go grey
+  function updateBarchart(nat){
+
+        nationality = ColorMap.get(nat);
+    
+        var svg = d3.select('#histogram')
+    
+        for(i = 0; i < Nationalities.length; i++){
+
+            // Keep the nationality's original color on the plot if it is selected
+            if(Nationalities[i] == nat){
+                color = ColorMap.get(nat);
+                var dots = svg.selectAll("." + nat).style('fill', color)
+    
+            }
+
+            // If the nationality is not selected, make the corresponding point grey
+            else{
+                var dots = svg.selectAll("." + Nationalities[i]).style('fill', '#d3d3d3')
+            }
+        }
 }
