@@ -1,3 +1,22 @@
+// HW 7 - Data visualization
+// 8/3/2022
+// Partners: Rian Brumfield and Malila Freeman
+
+// Description: We took data from the MET (Metropolitan Museum of Art) which includes data points about works that they have acquired such as piece type, artist
+// nationality, year the piece was started and finished, year the piece was acquired, etc. We displayed data for only paintings, and we created visuals of (1) a 
+// scatterplot of the year the piece was finished vs. the year the MET acquired the piece, and (2) a histogram of the number of pieces per artist nationality. 
+// The user can filter based on all of the paintings or on just the paintings that have been highlighted in MET exhibitions. The user can also filter based on
+// artist nationality, which will show only the colored points for that specific nationality and grey out the other nationalities both in the scatterplot and in the
+// histogram. The user is also able to hover their mouse over data points in the scatter plot to view the piece's title. 
+
+
+// IMPORTANT TO RUN THE CODE:
+
+// 1. Download the MET Object Dataset: https://github.com/metmuseum/openaccess/blob/master/MetObjects.csv, right click "download" --> "download linked file"
+// 2. Place the .csv in the METData directory that contains this .js file and the index.html file. 
+// 3. Once the server has been run with $python3 -m http.server (from the METData directory), open "localhost:8000/index.html" in browser. 
+
+
 class MetData {
 
     constructor(title, accessionYear, objectName, isHighlighted, artistNationality, objectBeginDate, objectEndDate, medium ) {
@@ -16,14 +35,12 @@ class MetData {
   Nationalities = ["Netherlandish", "Dutch",  "Flemish", "Spanish", "Scottish", "Mexican", "Austrian", "Swiss", "Brazilian", "Greek", "Chinese", "Japanese", "French", "German", "Italian", "British", "American"];
   NationalityCount = new Map();
   highlightedNationalityCount = new Map();
-  //   ColorCode = ["#800000", "#9a6324", "#808000", "#469990", "#000075", "#e6194b", "#f58231", "#ffe119", "#bfef45", "#3cb44b", "#42d4f4", "#4363d8", "#911eb4", "#f032e6", "#fabed4", "#ffd8b1", "#aaffc3", "#dcbeff", ""]
   ColorCode = ["#ff00ff", "#7CFC00", "#006400",  "#9ACD32", "#8B008B", "#FF0000", "#FFA500", "#808000", "#008080", "#4f77aa", "#78aed3", "#ffb6c1", "#DEB887", "#8A2BE2", "#ff1493", "#00ffff", "#ff7f50"]
   const ColorMap = new Map();
   for(i = 0; i < Nationalities.length; i++ ){
     ColorMap.set(Nationalities[i], ColorCode[i]);
     NationalityCount.set(Nationalities[i], 0);
     highlightedNationalityCount.set(Nationalities[i], 0);
-    // console.log(Nationalities[i]);
   }
 
   console.log("Length:", Nationalities.length)
@@ -35,7 +52,6 @@ class MetData {
         check = string.includes(Nationalities[i])
         if(check){
 
-            // NationalityCount.set(Nationalities[i], NationalityCount.get(Nationalities[i]) + 1);
             return check;
         }
 
@@ -86,16 +102,11 @@ let highlightedAccessionYearSet = new Set();
 window.onload = async function(){
 
     d3.csv("MetObjects.csv", function(data) {
-        // console.log(data[0]);
-        // console.log(data[0]["Medium"]);
 
-        // object_data = new MetData(data[0].Title, data[0]["Object Name"], data[0]["Is Highlight"], data[0]["Artist Nationality"], data[0]["Object Begin Date"], data[0]["Object End Date"], );
-        // console.log(object_data);
         for (var i = 0; i < data.length; i++) {
 
-            // console.log(data[i]);
             object_data = new MetData(data[i].Title, parseInt(data[i]["AccessionYear"]), data[i]["Object Name"], getBooleanValue(data[i]["Is Highlight"]), data[i]["Artist Nationality"], parseInt(data[i]["Object Begin Date"]), parseInt(data[i]["Object End Date"]), data[i]["Medium"]);
-            // console.log("Data is ", object_data);            
+
             if( filterByNationality(object_data.artistNationality)
                 && object_data.objectName == "Painting"
                 && object_data.accessionYear != null && object_data.accessionYear > 0
@@ -122,63 +133,25 @@ window.onload = async function(){
                     highlightedNationalityCount.set(getNationality(object_data.artistNationality), highlightedNationalityCount.get(getNationality(object_data.artistNationality)) + 1);
 
                 }
-
-
-
             }
         }
 
        
         console.log(met_data);
-        // console.log(objectNameSet);
-        // console.log(artNationalitySet);
-        // console.log(highlightedArtNationalitySet);
         console.log(highlighted_met_data);
         console.log("Max", Math.max(...endDateSet), "\nMin :", Math.min(...endDateSet));
         console.log("Highlighted end date", highlightedEndDateSet);
-        // console.log(mediumSet);
-        // console.log(highlightedMediumSet);
-        // console.log(accessionYearSet);
         console.log("highlighted ass: ", highlightedAccessionYearSet);
         makeHighlightButtons();
 
-        // // createScatterplot(highlighted_met_data , Math.max(...highlightedEndDateSet), Math.min(...highlightedEndDateSet), Math.max(...highlightedAccessionYearSet), Math.min(...highlightedAccessionYearSet));
-        // createScatterplot(met_data, Math.max(...endDateSet), Math.min(...endDateSet), Math.max(...accessionYearSet), Math.min(...accessionYearSet));
         showAllData();
-
-        
-        // const arr = Array.from(NationalityCount, function (item) {
-        //     return { key: item[0], value: item[1] }
-        // });
-
-        // max = 0;
-        // for(i = 0; i < arr.length; i++){
-        //     // console.log(arr[i])
-        //     if(arr[i].value > max){
-        //         max = arr[i].value;
-        //     }
-        // }
-        // console.log("max is : ", max);
-        // createBarChart(arr, max);
-
-        // createHistogram(NationalityCount.values());
-        // createHistogram(NationalityCount);
-
-        // console.log(NationalityCount.entries())
-
-        // console.log(NationalityCount);
-        //here is where we need to come up with how we want to store data for our visuals
-
     });
-
-
-
-
 }
 
 
 function makeButtons(){
 
+    // Nationality buttons
     for(i = 0; i < Nationalities.length; i++){
         d3.select('#Buttons')
           .insert("p")
@@ -186,6 +159,15 @@ function makeButtons(){
           .attr('id', "singleButton")
           .text(Nationalities[i]).on('click', handleClick).style('background-color', ColorMap.get(Nationalities[i]));
     }
+
+    // Add a reset button
+    d3.select('#Buttons')
+    .insert("p")
+    .attr('class', "resetButton")
+    .attr('id', "singleButton")
+    .text("RESET")
+    .on('click', handleReset)
+    .style('background-color', '#d3d3d3');
     
 }
 
@@ -211,7 +193,11 @@ function makeHighlightButtons(){
 
 }
 
+var highlightedButtonSelected = false;
+
 function showAllData(){
+
+    highlightedButtonSelected = false;
 
     d3.select("#scatterplot").html("");
     d3.select("#histogram").html("");
@@ -221,11 +207,7 @@ function showAllData(){
 
 
     makeButtons();
-    // makeButtons();
 
-
-
-        // createScatterplot(highlighted_met_data , Math.max(...highlightedEndDateSet), Math.min(...highlightedEndDateSet), Math.max(...highlightedAccessionYearSet), Math.min(...highlightedAccessionYearSet));
         createScatterplot(met_data, Math.max(...endDateSet), Math.min(...endDateSet), Math.max(...accessionYearSet), Math.min(...accessionYearSet));
         
         
@@ -235,24 +217,24 @@ function showAllData(){
 
         max = 0;
         for(i = 0; i < arr.length; i++){
-            // console.log(arr[i])
+
             if(arr[i].value > max){
                 max = arr[i].value;
             }
         }
-        // console.log("max is : ", max);
         createBarChart(arr, max);
 
 }
 
 function showHighlightData(){
 
+    highlightedButtonSelected = true;
+
     d3.select("#scatterplot").html("");
     d3.select("#histogram").html("");
     d3.select("#Buttons").html("")
     d3.select('.HighlightedButton').style('background-color', "#FFFF00");
     d3.select('.AllButton').style('background-color', '#d3d3d3')
-    // makeButtons();
 
     makeButtons();
 
@@ -273,8 +255,6 @@ function showHighlightData(){
        }
        console.log("max is : ", max);
        createBarChart(arr, max);
-
-    
 }
 
 
@@ -283,8 +263,6 @@ function updateButtons(nat){
     nationality = ColorMap.get(nat);
 
     var svg = d3.select('#Buttons')
-
-    // var p = svg.selectAll('p').style('background-color', "#d3d3d3");
 
     for(i = 0; i < Nationalities.length; i++){
         if(Nationalities[i] == nat){
@@ -297,45 +275,41 @@ function updateButtons(nat){
 
         }
     }
-
-
-
 }
 
 function handleClick(e, d){
     
     console.log("Click-click");
-    // console.log("e is", e);
-    // let elem = d3.select(this);
-    // console.log("elem is", this.outerText);
-
 
     updateScatterplot(this.outerText);
     updateBarchart(this.outerText);
     updateButtons(this.outerText)
 }
 
+function handleReset(e, d){
+
+    if (highlightedButtonSelected){
+        showHighlightData();
+    }
+    else {
+        showAllData();
+    }
+}
+
 function createScatterplot(data, xMax, xMin, yMax, yMin){
 
 // set the dimensions and margins of the graph
-var margin = {top: 10, right: 30, bottom: 30, left: 60},
-// width = 460 - margin.left - margin.right,
-// height = 400 - margin.top - margin.bottom;
+var margin = {top: 30, right: 30, bottom: 30, left: 60},
 width = 600 - margin.left - margin.right,
 height = 560 - margin.top - margin.bottom;
 
 
-// append the svg object to the body of the page
 var svg = d3.select("#scatterplot")
-.attr("width", width + margin.left + margin.right)
-.attr("height", height + margin.top + margin.bottom)
-.append("g")
-.attr("transform",
-      "translate(" + margin.left + "," + margin.top + ")");
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+            .append("g")
+            .attr("transform","translate(" + margin.left + "," + margin.top + ")");
 
-
-      //Read the data
-// d3.csv("https://raw.githubusercontent.com/holtzy/data_to_viz/master/Example_dataset/2_TwoNum.csv", function(data) {
 
     // Add X axis
     var x = d3.scaleLinear()
@@ -344,7 +318,13 @@ var svg = d3.select("#scatterplot")
     svg.append("g")
       .attr("transform", "translate(0," + height + ")")
       .call(d3.axisBottom(x).tickFormat(d3.format("d")));
-    // d3.svg.axis().scale(x).orient("bottom").tickFormat(d3.format("d"))
+
+    // Add the x-axis label
+    svg.append("text")      // text label for the x axis
+        .attr("x", width / 2 )
+        .attr("y",  height + margin.bottom + 10 )
+        .style("text-anchor", "middle")
+        .text("Year of Piece Creation");
   
     // Add Y axis
     var y = d3.scaleLinear()
@@ -352,6 +332,28 @@ var svg = d3.select("#scatterplot")
       .range([ height, 0]);
     svg.append("g")
     .call(d3.axisLeft(y).tickFormat(d3.format("d")));
+
+    // Add y-axis label
+    svg.append("text")
+        .attr("transform", "rotate(-90)")
+        .attr("y", 0 - margin.left)
+        .attr("x",0 - (height / 2))
+        .attr("dy", "1em")
+        .style("text-anchor", "middle")
+        .text("Year of Piece Acquisition");
+
+    svg.append("text")
+    .attr("x", (width / 2))             
+    .attr("y", 0 - (margin.top / 2))
+    .attr("text-anchor", "middle")  
+    .style("font-size", "18px") 
+    .text("Creation and Acquisition of Pieces");
+
+    // Create a div to hold the title names 
+    var titleDiv = d3.select("body").append("div")
+     .attr("class", "titleHolder")
+     .style("opacity", 0);
+
   
     // Add dots
     svg.append('g')
@@ -366,13 +368,28 @@ var svg = d3.select("#scatterplot")
         .style("fill", function(d){
             nationality = getNationality(d.artistNationality)
             return ColorMap.get(nationality)})
-        .on("click", handleDotClick);
-  
-//   })
-}
+        .on("mouseover", function (d, i){
+            d3.select(this).transition()
+                            .duration('100')
+                            .attr('r', 5);
+            titleDiv.transition()
+                .duration('100')
+                .style("opacity", 1);
+            console.log("piece title: ", d.title)
+            titleDiv.html(d.title)
+                .style("left", (d3.event.pageX + 10) + "px")
+                .style("top", (d3.event.pageY - 15) + "px");
+        })
+        .on("mouseout", function (d, i){
+            d3.select(this).transition()
+                            .duration('200')
+                            .attr('r', 2);
+            titleDiv.transition()
+                    .duration('200')
+                    .style("opacity", 0);
 
-
-
+        });
+  }
 
 function updateScatterplot(nat){
 
@@ -393,9 +410,9 @@ function updateScatterplot(nat){
         }
     }
  
-    }
+}
 
-    function updateBarchart(nat){
+function updateBarchart(nat){
 
         nationality = ColorMap.get(nat);
     
@@ -412,27 +429,15 @@ function updateScatterplot(nat){
     
             }
         }
-     
-        }
-
-
-function handleDotClick(e, d){
-
-    
-    console.log("on hover")
 }
 
+
 console.log("This code runs before the data is read in.");
-
-
 
 function createBarChart(data, maxcount){
 
 // set the dimensions and margins of the graph
 var margin = {top: 30, right: 30, bottom: 70, left: 60},
-// width = 460 - margin.left - margin.right,
-// height = 400 - margin.top - margin.bottom;
-
 width = 600 - margin.left - margin.right,
 height = 600 - margin.top - margin.bottom;
 
@@ -443,6 +448,7 @@ var svg = d3.select("#histogram")
 .append("g")
 .attr("transform",
       "translate(" + margin.left + "," + margin.top + ")");
+
 
 // Parse the Data
     var x = d3.scaleBand()
@@ -455,6 +461,7 @@ var svg = d3.select("#histogram")
     .selectAll("text")
       .attr("transform", "translate(-10,0)rotate(-45)")
       .style("text-anchor", "end");
+
   
   // Add Y axis
   var y = d3.scaleLinear()
@@ -462,18 +469,41 @@ var svg = d3.select("#histogram")
     .range([ height, 0]);
   svg.append("g")
     .call(d3.axisLeft(y));
+
+// Add the x-axis label
+    svg.append("text")      
+        .attr("x", width / 2 )
+        .attr("y",  height + margin.bottom )
+        .style("text-anchor", "middle")
+        .text("Artist Nationality");
+
+   // Add y-axis label
+   svg.append("text")
+   .attr("transform", "rotate(-90)")
+   .attr("y", 0 - margin.left)
+   .attr("x",0 - (height / 2))
+   .attr("dy", "1em")
+   .style("text-anchor", "middle")
+   .text("Number of Pieces");
+
+    svg.append("text")
+    .attr("x", (width / 2))             
+    .attr("y", 0 - (margin.top / 2))
+    .attr("text-anchor", "middle")  
+    .style("font-size", "18px") 
+    // .style("text-decoration", "underline")  
+    .text("Number of Pieces by Artist Nationality");
   
 
     // Bars
-svg.selectAll("mybar")
-.data(data)
-.enter()
-.append("rect")
-  .attr("x", function(d) { return x(d.key); })
-  .attr("y", function(d) { return y(d.value); })
-  .attr('class', function(d){return getNationality(d.key)})
-  .attr("width", x.bandwidth())
-  .attr("height", function(d) { return height - y(d.value); })
-  .attr("fill", function(d){return ColorMap.get(d.key)})
-
+    svg.selectAll("mybar")
+        .data(data)
+        .enter()
+        .append("rect")
+            .attr("x", function(d) { return x(d.key); })
+            .attr("y", function(d) { return y(d.value); })
+            .attr('class', function(d){return getNationality(d.key)})
+            .attr("width", x.bandwidth())
+            .attr("height", function(d) { return height - y(d.value); })
+            .attr("fill", function(d){return ColorMap.get(d.key)})
 }
